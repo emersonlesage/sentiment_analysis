@@ -36,8 +36,12 @@ Filename must have .csv.gz extension
 
 example: python load_paths.py steam "C:/data/steam.csv.gz"
 
-To run a xgb model:
+To run any model:
+```
+python model.py <dataset name> <path to dataset (genterated above) <vector encoding> <model name>
+```
 
-1. python xgboost_model.py <dataset name> <path to dataset (generated above)> <vector encoding>
-
-example: python xgboost_model.py steam "C:/data/steam.csv.gz" "tf_idf"
+Example: models include "mnb", "svm", "xgb"
+```
+python model.py steam "C:/data/steam.csv.gz" "tf_idf" "xgb"
+```
