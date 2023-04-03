@@ -38,7 +38,7 @@ example: python load_paths.py steam "C:/data/steam.csv.gz"
 
 To run any model:
 ```
-python model.py <dataset name> <path to dataset (genterated above) <vector encoding> <model name>
+python model.py <dataset name> <path to dataset (generated above) <vector encoding> <model name>
 ```
 
 Example: models include "mnb", "svm", "xgb"
