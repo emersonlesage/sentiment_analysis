@@ -2,7 +2,6 @@ import pandas as pd
 import re
 import nltk
 
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 nltk.download('stopwords')
@@ -68,7 +67,7 @@ def preprocess(df):
 def tf_idf(train, test):
     vectorizer = TfidfVectorizer()
 
-    vectorizer.fit(pd.concat([train, test]))
+    vectorizer.fit(train)
 
     return vectorizer.transform(train), vectorizer.transform(test)
 
@@ -83,7 +82,7 @@ def preprocess_train_test_sets(train_path, test_path, vector_encoding):
         test = pd.read_csv(test_path, compression='gzip')
 
         X_train, X_test = vector_encoding_functions[vector_encoding](train['review_text'], test['review_text'])
-        
+
         y_train = train['review_score']
         y_test = test['review_score']
 
