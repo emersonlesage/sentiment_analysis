@@ -7,11 +7,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from preprocess import preprocess
 
-TRAIN_SETS = [
-    ('steam', "C:/data/datasets/steam/steam_train.csv.gz"),
-    ('yelp', 'C:/data/datasets/yelp/yelp_train.csv.gz'),
-    ('amazon', 'C:/data/datasets/amazon/amazon_train.csv.gz')
-]
+TRAIN_SETS = {
+    'steam': "C:/data/datasets/steam/steam_train.csv.gz",
+    'yelp': 'C:/data/datasets/yelp/yelp_train.csv.gz',
+    'amazon': 'C:/data/datasets/amazon/amazon_train.csv.gz'
+}
 
 TEST_SETS = [
     ('steam', "C:/data/datasets/steam/steam_test.csv.gz"),
@@ -58,7 +58,7 @@ def evaluate(model, X_test, y_test):
 def run_pipeline(model_type, training_dataset):
 
     model = MODELS[model_type]
-    train_set = get_dataset(TRAIN_SETS[0][1])
+    train_set = get_dataset(TRAIN_SETS[training_dataset])
 
     vectorizer = get_tf_idf_transformer(train_set['review_text'])
 
