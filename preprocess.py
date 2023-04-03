@@ -64,10 +64,13 @@ def preprocess(df):
 
     return df
 
-def tf_idf(text):
+
+def tf_idf(train, test):
     vectorizer = TfidfVectorizer()
 
-    return vectorizer.fit_transform(text)
+    vectorizer.fit(pd.concat([train, test]))
+
+    return vectorizer.transform(train), vectorizer.transform(test)
 
 def preprocess_train_test_sets(train_path, test_path, vector_encoding):
 
@@ -79,10 +82,9 @@ def preprocess_train_test_sets(train_path, test_path, vector_encoding):
         train = pd.read_csv(train_path, compression='gzip')
         test = pd.read_csv(test_path, compression='gzip')
 
-        X_train = vector_encoding_functions[vector_encoding](train['review_text'])
+        X_train, X_test = vector_encoding_functions[vector_encoding](train['review_text'], test['review_text'])
+        
         y_train = train['review_score']
-
-        X_test = vector_encoding_functions[vector_encoding](test['review_text'])
         y_test = test['review_score']
 
         return X_train, X_test, y_train, y_test
