@@ -22,6 +22,7 @@ COMP 4710 Final Project
 # Usage
 
 Avaliable datasets: steam, yelp
+
 Avaliable vector encodings: tf_idf
 
 Install dependencies with pip
