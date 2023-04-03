@@ -5,9 +5,6 @@ import nltk
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from load_data import load_steam
-from load_data import load_yelp
-
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
@@ -59,25 +56,11 @@ def preprocess(df):
         .apply(lemmatize)
     )
 
-    return df
-
-def preprocess_steam(path):
-
-    df = pd.read_csv(path, compression='gzip')
-    df = preprocess(df)
-
     # drop early access reviews
     df = df[df['review_text'] != 'early access review']
     
     # drop empty reviews
     df = df[(df['review_text'] != ' ') & (df['review_text'] != '')]
-    
-    return df
-
-def preprocess_yelp(path):
-
-    df = pd.read_csv(path, compression='gzip')
-    df = preprocess(df)
 
     return df
 
@@ -86,30 +69,25 @@ def tf_idf(text):
 
     return vectorizer.fit_transform(text)
 
-def get_train_test_sets(dataset, data_path, vector_encoding):
-    
-    preprocessing_functions = {
-        'steam': preprocess_steam,
-        'yelp': preprocess_yelp
-    }
+def preprocess_train_test_sets(train_path, test_path, vector_encoding):
 
     vector_encoding_functions = {
         'tf_idf': tf_idf
     }
 
-    if dataset in preprocessing_functions.keys() and vector_encoding in vector_encoding_functions.keys():
+    if vector_encoding in vector_encoding_functions.keys():
+        train = pd.read_csv(train_path, compression='gzip')
+        test = pd.read_csv(test_path, compression='gzip')
 
-        data = preprocessing_functions[dataset](data_path)
+        X_train = vector_encoding_functions[vector_encoding](train['review_text'])
+        y_train = train['review_score']
 
-        X = vector_encoding_functions[vector_encoding](data['review_text'])
-        y = data['review_score']
-
-        # split data into train and test sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=69)
+        X_test = vector_encoding_functions[vector_encoding](test['review_text'])
+        y_test = test['review_score']
 
         return X_train, X_test, y_train, y_test
 
     else:
-        print("Dataset or vector encoding does not exist.")
+        print("Vector encoding does not exist.")
 
         return None
