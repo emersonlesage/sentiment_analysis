@@ -27,11 +27,19 @@ def save_preprocessed_data(dataset):
     
     write(train, test, text_path)
 
-    train_v, test_v = vectorize(train, test, "tf_idf")
-    write_json(train_v, test_v, tf_idf_path)
+def save_vectorized_data(dataset, vec_type):
 
-    train_v, test_v = vectorize(train, test, "sentence")
-    write_json(train_v, test_v, s_embedding_path)
+    train_read_path = f"C:/data/text/{dataset}_train.csv.gz"   # path for the preprocess text data
+    test_read_path = f"C:/data/text/{dataset}_test.csv.gz"
+
+    out_path = f"C:/data/vectors/{vec_type}/{dataset}"
+
+    train = pd.read_csv(train_read_path)
+    test = pd.read_csv(test_read_path)
+
+    train, test = vectorize(train, test, vec_type)
+    write_json(train, test, out_path)
+
 
 
 def write_json(train, test, path):
@@ -58,8 +66,10 @@ def write(train, test, path):
     test.to_csv(test_path, compression='gzip', index=False)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
+        save_vectorized_data(sys.argv[1], sys.argv[2])
+    elif len(sys.argv) == 2:
         save_preprocessed_data(sys.argv[1])
     else:
-        print("Please provide 1 argument")
+        print("Invalid number of args")
 
