@@ -3,6 +3,7 @@ import re
 import nltk
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sentence_transformers import SentenceTransformer
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -10,6 +11,8 @@ nltk.download('wordnet')
 
 STOP_WORDS = nltk.corpus.stopwords.words('english')
 LEMMATIZER = nltk.stem.WordNetLemmatizer()
+MODEL = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1')
+
 
 def remove_stopwords(text):
     # remove words such as "and", "is", "an", etc.
@@ -46,6 +49,8 @@ def remove_non_ascii(text):
 def preprocess(df):
     # apply all preprocessing to dataframe
 
+    print("\nPreprocessing dataset...", end='')
+
     # clean 
     df.loc[:, "review_text"] = (
         df["review_text"]
@@ -61,32 +66,41 @@ def preprocess(df):
     # drop empty reviews
     df = df[(df['review_text'] != ' ') & (df['review_text'] != '')]
 
+    print(f" DONE: {len(df)} records")
+
     return df
 
 
 def tf_idf(train, test):
-    vectorizer = TfidfVectorizer()
+    vectorizer = TfidfVectorizer(max_features=1000)
 
     vectorizer.fit(train)
 
-    return vectorizer.transform(train), vectorizer.transform(test)
+    return vectorizer.transform(train).toarray(), vectorizer.transform(test).toarray()
 
-def preprocess_train_test_sets(train_path, test_path, vector_encoding):
+def sentence_embedding(train, test):
+
+    train = MODEL.encode(train, batch_size=1500)
+    test = MODEL.encode(test, batch_size=1500)
+
+    return train, test
+
+def vectorize(train, test, vector_encoding):
 
     vector_encoding_functions = {
-        'tf_idf': tf_idf
+        'tf_idf': tf_idf,
+        'sentence': sentence_embedding
     }
 
     if vector_encoding in vector_encoding_functions.keys():
-        train = pd.read_csv(train_path, compression='gzip')
-        test = pd.read_csv(test_path, compression='gzip')
 
-        X_train, X_test = vector_encoding_functions[vector_encoding](train['review_text'], test['review_text'])
+        print(f"\nVectorizing with {vector_encoding}")
+        train_vec, test_vec = vector_encoding_functions[vector_encoding](train['review_text'], test['review_text'])
 
-        y_train = train['review_score']
-        y_test = test['review_score']
+        train_json = {'vectors': train_vec.tolist(), 'labels': train['review_score'].tolist()}
+        test_json = {'vectors': test_vec.tolist(), 'labels': test['review_score'].tolist()}
 
-        return X_train, X_test, y_train, y_test
+        return train_json, test_json
 
     else:
         print("Vector encoding does not exist.")

@@ -4,23 +4,25 @@ import sys
 
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, confusion_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
 
 from preprocess import preprocess
 
 TRAIN_SETS = {
-    'steam': "C:/data/datasets/steam/steam_train.csv.gz",
-    'yelp': 'C:/data/datasets/yelp/yelp_train.csv.gz',
-    'amazon': 'C:/data/datasets/amazon/amazon_train.csv.gz'
+    'steam': "C:/data/4710/steam/text/steam_train.csv.gz",
+    'yelp': 'C:/data/4710/yelp//text/yelp_train.csv.gz',
+    'amazon': 'C:/data/4710/amazon//text/amazon_train.csv.gz'
 }
 
 TEST_SETS = [
-    ('steam', "C:/data/datasets/steam/steam_test.csv.gz"),
-    ('yelp', 'C:/data/datasets/yelp/yelp_test.csv.gz'),
-    ('amazon', 'C:/data/datasets/amazon/amazon_test.csv.gz')
+    ('steam', "C:/data/4710/steam/text/steam_test.csv.gz"),
+    ('yelp', 'C:/data/4710/yelp/text/yelp_test.csv.gz'),
+    ('amazon', 'C:/data/4710/amazon/text/amazon_test.csv.gz')
 ]
 
 MODELS = {
-    'xgboost': xgb.XGBClassifier()
+    'xgboost': xgb.XGBClassifier(),
+    'bayes': MultinomialNB()
 }
 
 def get_tf_idf_transformer(data):
@@ -31,7 +33,7 @@ def get_tf_idf_transformer(data):
 
 def get_dataset(path):
     data = pd.read_csv(path, compression='gzip')
-    data = preprocess(data)
+
     return data
 
 def train(model, X_train, y_train):

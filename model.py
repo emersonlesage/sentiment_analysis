@@ -5,7 +5,7 @@ import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
-from preprocess import get_train_test_sets
+from preprocess import preprocess_train_test_sets
 
 def create_model():
     return xgb.XGBClassifier()
@@ -20,7 +20,7 @@ def evaluate(model, X_test, y_test):
 
 def run(name, path, vector_encoding, model_name):
 
-    X_train, X_test, y_train, y_test = get_train_test_sets(name, path, vector_encoding)
+    X_train, X_test, y_train, y_test = preprocess_train_test_sets(name, path, vector_encoding)
 
     model = get_model(model_name)
 

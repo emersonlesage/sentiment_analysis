@@ -3,8 +3,8 @@ import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from preprocess import preprocess_train_test_sets
 
-TRAIN_PATH = "C:/data/datasets/yelp/yelp_train.csv.gz"
-TEST_PATH = "C:/data/datasets/yelp/yelp_test.csv.gz"
+TRAIN_PATH = "C:/data/datasets/amazon/amazon_train.csv.gz"
+TEST_PATH = "C:/data/datasets/amazon/amazon_test.csv.gz"
 VECTOR_ENCODING = "tf_idf"
 
 def create_model():
