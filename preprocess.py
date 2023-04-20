@@ -80,8 +80,8 @@ def tf_idf(train, test):
 
 def sentence_embedding(train, test):
 
-    train = MODEL.encode(train, batch_size=1500)
-    test = MODEL.encode(test, batch_size=1500)
+    train = MODEL.encode(train, batch_size=512)
+    test = MODEL.encode(test, batch_size=512)
 
     return train, test
 

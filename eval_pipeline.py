@@ -1,40 +1,17 @@
 import pandas as pd
 import xgboost as xgb
 import sys
+import json
 
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, confusion_matrix
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, confusion_matrix, roc_auc_score
 from sklearn.naive_bayes import MultinomialNB
-
-from preprocess import preprocess
-
-TRAIN_SETS = {
-    'steam': "C:/data/4710/steam/text/steam_train.csv.gz",
-    'yelp': 'C:/data/4710/yelp//text/yelp_train.csv.gz',
-    'amazon': 'C:/data/4710/amazon//text/amazon_train.csv.gz'
-}
-
-TEST_SETS = [
-    ('steam', "C:/data/4710/steam/text/steam_test.csv.gz"),
-    ('yelp', 'C:/data/4710/yelp/text/yelp_test.csv.gz'),
-    ('amazon', 'C:/data/4710/amazon/text/amazon_test.csv.gz')
-]
 
 MODELS = {
     'xgboost': xgb.XGBClassifier(),
     'bayes': MultinomialNB()
 }
 
-def get_tf_idf_transformer(data):
-    vectorizer = TfidfVectorizer()
-    vectorizer.fit(data)
-
-    return vectorizer
-
-def get_dataset(path):
-    data = pd.read_csv(path, compression='gzip')
-
-    return data
+DATASETS = ['yelp', 'steam', 'amazon', 'reddit', 'twitter']
 
 def train(model, X_train, y_train):
     model.fit(X_train, y_train)
@@ -47,6 +24,7 @@ def evaluate(model, X_test, y_test):
     acc = accuracy_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
+    auc_roc = roc_auc_score(y_test, y_pred)
 
     print(f"True Positives: {tp}")
     print(f"True Negatives: {tn}")
@@ -57,34 +35,40 @@ def evaluate(model, X_test, y_test):
     print(f"F1 Score: {f1:.4f}")
     print(f"Balanced Accuracy: {balanced_accuracy:.4f}")
 
-def run_pipeline(model_type, training_dataset):
+    print(f"AUC-ROC Score: {auc_roc:.4f}")
 
+def get_vectors_labels(path):
+    with open(path, 'r') as f:
+        data = json.load(f)
+
+    return data['vectors'], data['labels']
+
+def run_pipeline(model_type, training_dataset, vector_encoding):
+
+    train_path = f"C:/data/vectors/{vector_encoding}/{training_dataset}_train.json.gz"
     model = MODELS[model_type]
-    train_set = get_dataset(TRAIN_SETS[training_dataset])
 
-    vectorizer = get_tf_idf_transformer(train_set['review_text'])
-
-    X_train = vectorizer.transform(train_set['review_text'])
-    y_train = train_set['review_score']
+    print(f"Loading {training_dataset} dataset")
+    X_train, y_train = get_vectors_labels(train_path)
 
     print(f"Training on {training_dataset} dataset\n")
     train(model, X_train, y_train)
 
-    for s in TEST_SETS:
-        print(f"\nTesting on {s[0]} dataset\n")
+    test_sets = [f"C:/data/vectors/{vector_encoding}/{i}_test.json.gz" for i in DATASETS]
 
-        test_set = get_dataset(s[1])
+    for s in test_sets:
+        print(f"\nTesting on {s}\n")
 
-        X_test = vectorizer.transform(test_set['review_text'])
-        y_test = test_set['review_score']
+        X_test, y_test = get_vectors_labels(s)
 
         evaluate(model, X_test, y_test)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
         model_type = sys.argv[1]
         train_set_name = sys.argv[2]
+        vector_encoding = sys.argv[3]
 
-        run_pipeline(model_type, train_set_name)
+        run_pipeline(model_type, train_set_name, vector_encoding)
     else:
         print("Please provide 2 arguments")
