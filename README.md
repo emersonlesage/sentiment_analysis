@@ -53,7 +53,7 @@ Example: models include "mnb", "svm", "xgb"
 python model.py steam "C:/data/steam.csv.gz" "tf_idf" "xgb"
 ```
 
-Analysis and visualizations can be produced with the following commands:
+Analysis and visualizations can be produced with the following commands. These were used to produce most of the figures in the paper.
 ```
 python analyze_dataset.py <dataset_name> 
 python compare_datasets.py <dataset_name> <vector_encoding>
